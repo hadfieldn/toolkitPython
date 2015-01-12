@@ -1,9 +1,10 @@
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+
 from supervised_learner import SupervisedLearner
 from baseline_learner import BaselineLearner
 from matrix import Matrix
 import random
 import argparse
-import textwrap
 import time
 
 
@@ -53,15 +54,11 @@ class MLSystemManager:
             data.normalize()
 
         # print some stats
-        print(textwrap.dedent("""\
-
-            Dataset name: {}
-            Number of instances: {}
-            Number of attributes: {}
-            Learning algorithm: {}
-            Evaluation method: {}
-
-            """).format(file_name, data.rows, data.cols, learner_name, eval_method))
+        print("\nDataset name: {}\n"
+              "Number of instances: {}\n"
+              "Number of attributes: {}\n"
+              "Learning algorithm: {}\n"
+              "Evaluation method: {}\n".format(file_name, data.rows, data.cols, learner_name, eval_method))
 
         if eval_method == "training":
 
