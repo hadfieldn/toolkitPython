@@ -82,11 +82,11 @@ class Matrix:
                     elif line.startswith("@ATTRIBUTE"):
                         attr_def = line[10:].strip()
                         if attr_def[0] == "'":
+                            attr_def = attr_def[1:]
                             attr_name = attr_def[:attr_def.index("'")]
                             attr_def = attr_def[attr_def.index("'")+1:].strip()
                         else:
-                            attr_name = attr_def[:attr_def.index(" ")]
-                            attr_def = attr_def[attr_def.index(" "):].strip()
+                            attr_name, attr_def = attr_def.split()
 
                         self.attr_names += [attr_name]
 
@@ -252,5 +252,3 @@ class Matrix:
             values = list(map(lambda j: str(r[j]) if self.value_count(j) == 0 else self.enum_to_str[j][r[j]],
                               range(len(r))))
             print("{}".format(", ".join(values)))
-
-

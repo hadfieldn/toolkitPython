@@ -32,8 +32,6 @@ class MLSystemManager:
             raise Exception("Unrecognized model: {}".format(model))
 
     def main(self):
-        random.seed(0)      # Use a seed for deterministic results (makes debugging easier)
-
         # parse the command-line arguments
         args = self.parser().parse_args()
         file_name = args.arff
@@ -42,6 +40,7 @@ class MLSystemManager:
         eval_parameter = args.E[1] if len(args.E) > 1 else None
         print_confusion_matrix = args.verbose
         normalize = args.normalize
+        random.seed(args.seed) # Use a seed for deterministic results, if provided (makes debugging easier)
 
         # load the model
         learner = self.get_learner(learner_name)
@@ -74,7 +73,7 @@ class MLSystemManager:
             print("Time to train (in seconds): {}".format(elapsed_time))
 
             accuracy = learner.measure_accuracy(features, labels, confusion)
-            print("Training set accuracy: " + accuracy)
+            print("Training set accuracy: " + str(accuracy))
 
             if print_confusion_matrix:
                 print("\nConfusion matrix: (Row=target value, Col=predicted value")
@@ -194,6 +193,7 @@ class MLSystemManager:
 
         parser.add_argument('-V', '--verbose', action='store_true', help='Print the confusion matrix and learner accuracy on individual class values')
         parser.add_argument('-N', '--normalize', action='store_true', help='Use normalized data')
+        parser.add_argument('-R', '--seed', help="Random seed") # will give a string
         parser.add_argument('-L', required=True, choices=['baseline', 'perceptron', 'neuralnet', 'decisiontree', 'knn'], help='Learning Algorithm')
         parser.add_argument('-A', '--arff', metavar='filename', required=True, help='ARFF file')
         parser.add_argument('-E', metavar=('METHOD', 'args'), required=True, nargs='+', help="Evaluation method (training | static <test_ARFF_file> | random <%%_for_training> | cross <num_folds>)")
@@ -203,4 +203,3 @@ class MLSystemManager:
 
 if __name__ == '__main__':
     MLSystemManager().main()
-
