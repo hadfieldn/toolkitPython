@@ -2,7 +2,6 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 
 import random
 import numpy as np
-from scipy import stats
 
 
 class Matrix:
@@ -220,10 +219,28 @@ class Matrix:
         a = np.ma.masked_equal(self.data[col], self.MISSING).compressed()
         return np.max(a)
 
+    def mode(a, axis=0): 
+    # taken from scipy code
+    # https://github.com/scipy/scipy/blob/master/scipy/stats/stats.py#L609
+        scores = np.unique(np.ravel(a))       # get ALL unique values
+        testshape = list(a.shape)
+        testshape[axis] = 1
+        oldmostfreq = np.zeros(testshape)
+        oldcounts = np.zeros(testshape)
+
+        for score in scores:
+            template = (a == score)
+            counts = np.expand_dims(np.sum(template, axis),axis)
+            mostfrequent = np.where(counts > oldcounts, score, oldmostfreq)
+            oldcounts = np.maximum(counts, oldcounts)
+            oldmostfreq = mostfrequent
+
+        return mostfrequent, oldcounts
+
     def most_common_value(self, col):
         """Get the most common value in the specified column"""
         a = np.ma.masked_equal(self.data[col], self.MISSING).compressed()
-        (val, count) = stats.mode(a)
+        (val, count) = mode(a)
         return val[0]
 
     def normalize(self):
