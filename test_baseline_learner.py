@@ -1,6 +1,6 @@
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 
-from unittest import TestCase
+from unittest import TestCase,TestLoader,TextTestRunner
 from baseline_learner import BaselineLearner
 from matrix import Matrix
 
@@ -8,7 +8,7 @@ from matrix import Matrix
 class TestBaselineLearner(TestCase):
 
     labels = Matrix()
-    labels.load_arff("tests/cm1_req.arff")
+    labels.load_arff("test/cm1_req.arff")
     l = BaselineLearner()
 
     def test_train(self):
@@ -21,3 +21,6 @@ class TestBaselineLearner(TestCase):
         self.l.predict([], labels)
 
         self.assertListEqual(self.l.labels, labels)
+
+suite = TestLoader().loadTestsFromTestCase(TestBaselineLearner)
+TextTestRunner(verbosity=2).run(suite)
