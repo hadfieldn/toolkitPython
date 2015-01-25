@@ -52,14 +52,14 @@ class Matrix:
             self.init_from(matrix, row_start, col_start, row_count, col_count)
 
     def init_from(self, matrix, row_start, col_start, row_count, col_count):
-        """Initialize the matrix with a protion of another matrix"""
-        self.data = [matrix.data[col][row_start:row_start+row_count] for col in range(col_start, col_start+col_count)]
+        """Initialize the matrix with a portion of another matrix"""
+        self.data = [matrix.data[row][col_start:col_start+col_count] for row in range(row_start, row_start+row_count)]
         self.attr_names = matrix.attr_names[col_start:col_start+col_count]
         self.str_to_enum = matrix.str_to_enum[col_start:col_start+col_count]    # array of dictionaries
         self.enum_to_str = matrix.enum_to_str[col_start:col_start+col_count]    # array of dictionaries
         return self
 
-    def add(self, matrix, row_start, col_start, row_count):
+    def add(self, matrix, row_start, col_start, col_count):
         """Appends a copy of the specified portion of a matrix to this matrix"""
         if __debug__ and col_start + self.cols > matrix.cols:
             raise Exception("out of range")
@@ -69,12 +69,12 @@ class Matrix:
                 if matrix.value_count(col_start + col) != self.value_count(col):
                     raise Exception("incompatible relations")
 
-        for i in range(min(self.cols, matrix.cols - col_start)):
-            self.data[i] += matrix.data[col_start + i][row_start:row_start + row_count]
+        for i in range(min(self.rows, matrix.rows - row_start)):
+            self.data[i] += matrix.data[row_start + i][col_start:col_start + col_count]
 
     def set_size(self, rows, cols):
         """Resize this matrix (and set all attributes to be continuous)"""
-        self.data = [[0]*rows for col in range(cols)]
+        self.data = [[0]*cols for row in range(rows)]
         self.attr_names = [""] * cols
         self.str_to_enum = {}
         self.enum_to_str = {}
@@ -145,16 +145,12 @@ class Matrix:
                     rows += [row]
 
         f.close()
-
-        # store as array of columns
-        for i in range(len(self.attr_names)):
-            self.data.append([row[i] for row in rows])
-
+        self.data=rows
 
     @property
     def rows(self):
         """Get the number of rows in the matrix"""
-        return len(self.data[0])
+        return len(self.data)
 
     @property
     def cols(self):
@@ -163,22 +159,22 @@ class Matrix:
 
     def row(self, n):
         """Get the specified row"""
-        return [col[n] for col in self.data]
+        return self.data[n]
 
     def col(self, n):
         """Get the specified column"""
-        return self.data[n]
+        return [row[n] for row in self.data]
 
     def get(self, row, col):
         """
         Get the element at the specified row and column
         :rtype: float
         """
-        return self.data[col][row]
+        return self.data[row][col]
 
     def set(self, row, col, val):
         """Set the value at the specified row and column"""
-        self.data[col][row] = val
+        self.data[row][col] = val
 
     def attr_name(self, col):
         """Get the name of the specified attribute"""
@@ -206,40 +202,32 @@ class Matrix:
 
     def shuffle(self, buddy=None):
         """Shuffle the row order. If a buddy Matrix is provided, it will be shuffled in the same order."""
-        n = self.rows
-        for i in range(n):
-            r = random.randrange(n)
-            cur_row = self.row(i)
-            rnd_row = self.row(r)
-            buddy_cur_row = buddy.row(i) if buddy is not None else None
-            buddy_rnd_row = buddy.row(r) if buddy is not None else None
-            for col in range(self.cols):
-                self.set(i, col, rnd_row[col])
-                self.set(r, col, cur_row[col])
-
-                if buddy is not None:
-                    buddy.set(i, col, buddy_rnd_row[col])
-                    buddy.set(i, col, buddy_cur_row[col])
+        if not buddy:
+          random.shuffle(self.data)
+        else:
+          c = list(zip(self.data, buddy.data))
+          random.shuffle(c)
+          self.data, buddy.data = zip(*c)
 
     def column_mean(self, col):
         """Get the mean of the specified column"""
 
-        a = np.ma.masked_equal(self.data[col], self.MISSING).compressed()
+        a = np.ma.masked_equal(self.col(col), self.MISSING).compressed()
         return np.mean(a)
 
     def column_min(self, col):
         """Get the min value in the specified column"""
-        a = np.ma.masked_equal(self.data[col], self.MISSING).compressed()
+        a = np.ma.masked_equal(self.col(col), self.MISSING).compressed()
         return np.min(a)
 
     def column_max(self, col):
         """Get the max value in the specified column"""
-        a = np.ma.masked_equal(self.data[col], self.MISSING).compressed()
+        a = np.ma.masked_equal(self.col(col), self.MISSING).compressed()
         return np.max(a)
 
     def most_common_value(self, col):
         """Get the most common value in the specified column"""
-        a = np.ma.masked_equal(self.data[col], self.MISSING).compressed()
+        a = np.ma.masked_equal(self.col(col), self.MISSING).compressed()
         (val, count) = mode(a)
         return val[0]
 
@@ -264,8 +252,8 @@ class Matrix:
                 print(" {{{}}}".format(", ".join(self.enum_to_str[i].values())))
 
         print("@DATA")
-        for i in range(self.rows):
-            r = self.row(i)
+        for i in range(self.cols):
+            r = self.col(i)
             values = list(map(lambda j: str(r[j]) if self.value_count(j) == 0 else self.enum_to_str[j][r[j]],
                               range(len(r))))
             print("{}".format(", ".join(values)))

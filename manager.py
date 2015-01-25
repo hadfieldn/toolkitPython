@@ -1,8 +1,8 @@
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 
-from supervised_learner import SupervisedLearner
-from baseline_learner import BaselineLearner
-from matrix import Matrix
+from .supervised_learner import SupervisedLearner
+from .baseline_learner import BaselineLearner
+from .matrix import Matrix
 import random
 import argparse
 import time
@@ -12,22 +12,24 @@ class MLSystemManager:
 
     def get_learner(self, model):
         """
+        Get an instance of a learner for the given model name.
+
+        To use toolkitPython as external package, you can extend this class (MLSystemManager)
+        with your own custom class located outside of this package, and override this method
+        to return your custom learners.
+
         :type model: str
         :rtype: SupervisedLearner
         """
-
-        # When you make a new learning algorithm, you should add al ine for it to this method.
-
-        if model == "baseline":
-            return BaselineLearner()
-        # elif model == "perceptron":
-        #     return Perceptron()
-        # elif model == "neuralnet":
-        #     return NeuralNet()
-        # elif model == "decisiontree":
-        #     return DecisionTree()
-        # elif model == "knn"
-        #     return InstanceBasedLearner()
+        modelmap = {
+            "baseline": BaselineLearner(),
+            #"perceptron": PerceptronLearner(),
+            #"neuralnet": NeuralNetLearner(),
+            #"decisiontree": DecisionTreeLearner(),
+            #"knn": InstanceBasedLearner()
+        }
+        if model in modelmap:
+            return modelmap[model]
         else:
             raise Exception("Unrecognized model: {}".format(model))
 
@@ -63,15 +65,13 @@ class MLSystemManager:
 
             print("Calculating accuracy on training set...")
 
-            features = Matrix(data, 0, 0, data.rows, data.cols)
+            features = Matrix(data, 0, 0, data.rows, data.cols-1)
             labels = Matrix(data, 0, data.cols-1, data.rows, 1)
             confusion = Matrix()
-
             start_time = time.time()
             learner.train(features, labels)
             elapsed_time = time.time() - start_time
             print("Time to train (in seconds): {}".format(elapsed_time))
-
             accuracy = learner.measure_accuracy(features, labels, confusion)
             print("Training set accuracy: " + str(accuracy))
 

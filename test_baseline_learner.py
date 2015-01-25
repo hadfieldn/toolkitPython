@@ -1,8 +1,8 @@
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 from unittest import TestCase,TestLoader,TextTestRunner
-from baseline_learner import BaselineLearner
-from matrix import Matrix
+from .baseline_learner import BaselineLearner
+from .matrix import Matrix
 
 
 class TestBaselineLearner(TestCase):
