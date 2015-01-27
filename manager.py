@@ -76,7 +76,7 @@ class MLSystemManager:
             print("Training set accuracy: " + str(accuracy))
 
             if print_confusion_matrix:
-                print("\nConfusion matrix: (Row=target value, Col=predicted value")
+                print("\nConfusion matrix: (Row=target value, Col=predicted value)")
                 confusion.print()
                 print("")
 
@@ -108,7 +108,7 @@ class MLSystemManager:
             print("Test set accuracy: {}".format(test_accuracy))
 
             if print_confusion_matrix:
-                print("\nConfusion matrix: (Row=target value, Col=predicted value")
+                print("\nConfusion matrix: (Row=target value, Col=predicted value)")
                 confusion.print()
                 print("")
 
@@ -143,7 +143,7 @@ class MLSystemManager:
             print("Test set accuracy: {}".format(test_accuracy))
 
             if print_confusion_matrix:
-                print("\nConfusion matrix: (Row=target value, Col=predicted value")
+                print("\nConfusion matrix: (Row=target value, Col=predicted value)")
                 confusion.print()
                 print("")
 
