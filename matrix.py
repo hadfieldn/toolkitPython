@@ -61,7 +61,7 @@ class Matrix:
 
     def add(self, matrix, row_start, col_start, col_count):
         """Appends a copy of the specified portion of a matrix to this matrix"""
-        if __debug__ and col_start + self.cols > matrix.cols:
+        if __debug__ and self.cols < col_count:
             raise Exception("out of range")
 
         if __debug__:
@@ -69,8 +69,8 @@ class Matrix:
                 if matrix.value_count(col_start + col) != self.value_count(col):
                     raise Exception("incompatible relations")
 
-        for i in range(min(self.rows, matrix.rows - row_start)):
-            self.data[i] += matrix.data[row_start + i][col_start:col_start + col_count]
+        for i in range(matrix.rows - row_start):
+            self.data.append(matrix.data[row_start + i][col_start:col_start + col_count])
 
     def set_size(self, rows, cols):
         """Resize this matrix (and set all attributes to be continuous)"""
@@ -252,8 +252,16 @@ class Matrix:
                 print(" {{{}}}".format(", ".join(self.enum_to_str[i].values())))
 
         print("@DATA")
-        for i in range(self.cols):
-            r = self.col(i)
-            values = list(map(lambda j: str(r[j]) if self.value_count(j) == 0 else self.enum_to_str[j][r[j]],
-                              range(len(r))))
+        for i in range(self.rows):
+            r = self.row(i)
+
+            values = []
+            for j in range(len(r)):
+                if self.value_count(j) == 0:
+                    values.append(str(r[j]))
+                else:
+                    values.append(self.enum_to_str[j][r[j]])
+
+            # values = list(map(lambda j: str(r[j]) if self.value_count(j) == 0 else self.enum_to_str[j][r[j]],
+            #                   range(len(r))))
             print("{}".format(", ".join(values)))
